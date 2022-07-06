@@ -1,0 +1,64 @@
+image: docker
+
+services:
+  - docker:dind
+
+stages:
+  - test
+  - development
+  - production
+
+test:
+  stage: test
+  tags:
+    - almaat
+    - aladarbi
+    - dashboard
+  only:
+    - develop
+    - production
+  script:
+    - echo "run tests in this section"
+
+step-deploy-dev:
+  stage: development
+  tags:
+    - aladarbi
+    - almaat
+    - dashboard
+  only:
+    - develop
+  script:
+    - sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    - sudo chmod +x /usr/local/bin/docker-compose
+    - sudo docker-compose  -f "docker-compose.dev.yml"  build --no-cache
+    - sudo docker-compose   -f "docker-compose.dev.yml"  stop
+    - sudo docker-compose   -f "docker-compose.dev.yml"   kill
+    - sudo docker-compose    -f "docker-compose.dev.yml"  rm
+    - sudo docker-compose   -f "docker-compose.dev.yml"  up -d
+  environment: development
+  when: manual
+
+step-deploy-prod:
+  stage: production
+  tags:
+    - aladarbi
+    - almaat
+    - dashboard
+  only:
+    - master
+  variables:
+    NODE_ENV: "production"
+    API_URL: "development"
+    PORT: 3008
+  script:
+    - echo "$NODE_ENV"
+    - sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    - sudo chmod +x /usr/local/bin/docker-compose
+    - sudo docker-compose build --no-cache
+    - sudo docker-compose  stop
+    - sudo docker-compose  kill
+    - sudo docker-compose  rm
+    - sudo docker-compose up -d
+  environment: production
+  when: manual

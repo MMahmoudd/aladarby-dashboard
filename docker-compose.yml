@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  aldarbi.dashboard:
+    build: .
+    container_name: aladarbi-dashboard_prod
+    restart: always
+    ports:
+      - "3008:80"
+    # command:
+    #   "npm run start"
+  # nginx:
+  #   image: nginx:1.13
+  #   container_name: vuevixens-nginx
+  #   ports:
+  #     - "3007:80"
+  #   volumes:
+  #     - ./nginx:/etc/nginx/conf.d
+  #   depends_on:
+  #     - nuxt
